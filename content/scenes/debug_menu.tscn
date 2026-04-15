@@ -85,7 +85,7 @@ margin_right = -1395.0
 theme = ExtResource( 1 )
 custom_styles/panel = SubResource( 1 )
 script = ExtResource( 19 )
-enemies_directories = [ "res://entities/units/enemies", "res://dlcs/dlc_1/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies", "res://mods-unpacked/Yoko-YzTato/content/entities/enemies" ]
+enemies_directories = [ "res://entities/units/enemies", "res://dlcs/dlc_1/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies" ]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 margin_left = 5.0
