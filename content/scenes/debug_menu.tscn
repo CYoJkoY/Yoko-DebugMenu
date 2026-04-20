@@ -141,6 +141,7 @@ margin_right = -5.0
 margin_bottom = -5.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+follow_focus = true
 
 [node name="Players_cont" type="VBoxContainer" parent="VBoxContainer/TabContainer/Players_cont"]
 margin_right = 495.0
@@ -593,6 +594,7 @@ margin_right = -5.0
 margin_bottom = -5.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+follow_focus = true
 
 [node name="Entities_cont" type="VBoxContainer" parent="VBoxContainer/TabContainer/Entities_cont"]
 margin_right = 505.0
@@ -667,6 +669,7 @@ margin_right = -5.0
 margin_bottom = -5.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+follow_focus = true
 
 [node name="Waves_cont" type="VBoxContainer" parent="VBoxContainer/TabContainer/Waves_cont"]
 margin_right = 505.0
@@ -828,6 +831,7 @@ icon = ExtResource( 33 )
 expand_icon = true
 
 [node name="cross_button" type="Button" parent="container_others"]
+unique_name_in_owner = true
 anchor_left = 1.0
 anchor_right = 1.0
 margin_left = 13.0
