@@ -1,6 +1,6 @@
 extends "res://ui/menus/debug/debug_menu.gd"
 
-onready var cross_button: Button = $"%CrossButton"
+onready var cross_button: Button = $"%cross_button"
 
 var focus_before_created: Control = null
 
