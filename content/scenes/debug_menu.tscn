@@ -86,7 +86,7 @@ margin_right = -1395.0
 theme = ExtResource( 1 )
 custom_styles/panel = SubResource( 1 )
 script = ExtResource( 19 )
-enemies_directories = [ "res://entities/units/enemies", "res://dlcs/dlc_1/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies/" ]
+enemies_directories = [ "res://entities/units/enemies", "res://dlcs/dlc_1/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies" ]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 margin_left = 5.0
@@ -911,7 +911,7 @@ margin_bottom = 881.0
 
 [node name="add_items_but" type="Button" parent="container_others/inventory_container/Inventory_items/inventory_tool_container"]
 modulate = Color( 0.560784, 1, 0.545098, 1 )
-margin_right = 488.0
+margin_right = 303.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 65, 0 )
 size_flags_horizontal = 3
@@ -925,8 +925,8 @@ expand_icon = true
 
 [node name="remove_items_but" type="Button" parent="container_others/inventory_container/Inventory_items/inventory_tool_container"]
 modulate = Color( 1, 0.545098, 0.545098, 1 )
-margin_left = 492.0
-margin_right = 980.0
+margin_left = 307.0
+margin_right = 610.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 65, 0 )
 size_flags_horizontal = 3
@@ -938,12 +938,23 @@ icon_align = 1
 expand_icon = true
 
 [node name="cursed_items_checkbut" type="CheckButton" parent="container_others/inventory_container/Inventory_items/inventory_tool_container"]
-margin_left = 984.0
-margin_right = 1292.0
+margin_left = 614.0
+margin_right = 922.0
 margin_bottom = 70.0
 custom_colors/font_color = Color( 0.881875, 0.671875, 1, 1 )
 custom_fonts/font = ExtResource( 25 )
 text = "cursed items"
+align = 1
+icon_align = 1
+expand_icon = true
+
+[node name="forced_items_checkbut2" type="CheckButton" parent="container_others/inventory_container/Inventory_items/inventory_tool_container"]
+margin_left = 926.0
+margin_right = 1292.0
+margin_bottom = 70.0
+custom_colors/font_color = Color( 0.881875, 0.671875, 1, 1 )
+custom_fonts/font = ExtResource( 25 )
+text = "forced shop  item"
 align = 1
 icon_align = 1
 expand_icon = true
@@ -1202,6 +1213,7 @@ expand_icon = true
 [connection signal="pressed" from="container_others/inventory_container/Inventory_items/inventory_tool_container/add_items_but" to="." method="_on_add_items_but_pressed"]
 [connection signal="pressed" from="container_others/inventory_container/Inventory_items/inventory_tool_container/remove_items_but" to="." method="_on_remove_items_but_pressed"]
 [connection signal="toggled" from="container_others/inventory_container/Inventory_items/inventory_tool_container/cursed_items_checkbut" to="." method="_on_cursed_items_checkbut_toggled"]
+[connection signal="toggled" from="container_others/inventory_container/Inventory_items/inventory_tool_container/forced_items_checkbut2" to="." method="_on_item_next_shop_checkbut_toggled"]
 [connection signal="pressed" from="container_others/inventory_container/Inventory_weapons/inventory_tool_container/add_weapons_but" to="." method="_on_add_weapons_but_pressed"]
 [connection signal="pressed" from="container_others/inventory_container/Inventory_weapons/inventory_tool_container/remove_weapons_but" to="." method="_on_remove_weapons_but_pressed"]
 [connection signal="toggled" from="container_others/inventory_container/Inventory_weapons/inventory_tool_container/cursed_weapons_checkbut" to="." method="_on_cursed_weapons_checkbut_toggled"]
