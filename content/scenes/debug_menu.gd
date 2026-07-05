@@ -15,7 +15,7 @@ func _ready() -> void:
 
     var enemies: Array = []
     for entity in ItemService.entities:
-        if !(entity is ItemEnemy): continue
+        if not entity is ItemEnemy: continue
 
         enemies.append(entity)
 
