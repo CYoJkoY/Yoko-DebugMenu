@@ -2,7 +2,7 @@ extends "res://singletons/debug_service.gd"
 
 var mod_debug_menu = null
 
-# =========================== Extension =========================== #
+# ══════════════════════════════════════════ Extension ══════════════════════════════════════════ #
 func _input(_event) -> void:
     var viewport: Viewport = get_viewport()
     var focused: Control = viewport.gui_get_focus_owner() if viewport else null

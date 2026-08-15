@@ -4,7 +4,7 @@ onready var cross_button: Button = $"%cross_button"
 
 var focus_before_created: Control = null
 
-# =========================== Extension =========================== #
+# ══════════════════════════════════════════ Extension ══════════════════════════════════════════ #
 func _on_cross_button_pressed() -> void:
     if is_instance_valid(focus_before_created): focus_before_created.grab_focus()
     queue_free()
@@ -53,7 +53,7 @@ func _update_itemsInventory_count() -> void:
             element.current_number = 0
             element._number_label.hide()
 
-# =========================== Method =========================== #
+# ══════════════════════════════════════════ Method ══════════════════════════════════════════ #
 func dm_curse_item(item_data: ItemParentData, player_index: int, turn_randomization_off: bool = false, min_modifier: float = 0.0) -> ItemParentData:
     var dlc_1: DLCData = ProgressData.get_dlc_data("abyssal_terrors")
     if dlc_1 == null: return item_data
