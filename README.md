@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/header.svg" alt="Yoko-DebugMenu" width="100%">
+</div>
+
 # Yoko-DebugMenu
 
 [![Release](https://img.shields.io/github/v/release/CYoJkoY/Yoko-DebugMenu?display_name=tag&sort=semver)](https://github.com/CYoJkoY/Yoko-DebugMenu/releases)
