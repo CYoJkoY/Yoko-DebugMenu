@@ -99,7 +99,23 @@ jobs:
               print(f"zip_name={name}-{release_version}.zip", file=out)
           PY
 
+      - name: Detect Godot import metadata
+        id: imports
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(find . -type f -name '*.import' -not -path './.git/*' | wc -l)"
+          echo "Import metadata files detected: $count"
+          if (( count > 0 )); then
+            echo "has_import=true" >> "$GITHUB_OUTPUT"
+            echo "This Mod contains *.import metadata; Godot import validation will run."
+          else
+            echo "has_import=false" >> "$GITHUB_OUTPUT"
+            echo "This Mod has no *.import metadata; Godot import steps will be skipped."
+          fi
+
       - name: Install Godot ${{ env.GODOT_VERSION }}
+        if: steps.imports.outputs.has_import == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -119,6 +135,7 @@ jobs:
           "$GODOT_BIN" --version
 
       - name: Prepare isolated Godot project
+        if: steps.imports.outputs.has_import == 'true'
         env:
           MOD_DIRECTORY: ${{ steps.manifest.outputs.mod_directory }}
         shell: bash
@@ -148,6 +165,7 @@ jobs:
           echo "MOD_ROOT=$MOD_ROOT" >> "$GITHUB_ENV"
 
       - name: Validate import source paths
+        if: steps.imports.outputs.has_import == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -156,11 +174,11 @@ jobs:
           import re
           from pathlib import Path
 
+          project = Path(os.environ["PROJECT"])
           mod_root = Path(os.environ["MOD_ROOT"])
           mismatches = []
           missing = []
           count = 0
-
           source_pattern = re.compile(r'^source_file="(res://[^"\\]+)"$')
 
           for meta in mod_root.rglob("*.import"):
@@ -170,10 +188,9 @@ jobs:
                   if not match:
                       continue
                   source = match.group(1).removeprefix("res://")
-                  source_path = Path(os.environ["PROJECT"]) / source
+                  source_path = project / source
                   if source_path.is_file():
                       continue
-
                   parent = source_path.parent
                   expected_name = source_path.name
                   if parent.is_dir():
@@ -192,13 +209,13 @@ jobs:
               print("Missing import source files:")
               for meta, source in missing:
                   print(f"  - {meta}: {source}")
-
           if mismatches or missing:
               raise SystemExit(1)
           print("All import metadata source paths match files exactly on the case-sensitive filesystem.")
           PY
 
       - name: Import resources with Godot
+        if: steps.imports.outputs.has_import == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -255,7 +272,6 @@ jobs:
           print(f"Import metadata files: {metadata_count}")
           print(f"Declared generated artifacts: {len(expected)}")
           print(f"Actual .import cache files: {sum(1 for p in import_dir.rglob('*') if p.is_file())}")
-          if metadata_count == 0: raise SystemExit("No *.import metadata files were found in the Mod source tree")
           if not expected: raise SystemExit("No generated import artifacts were declared by the Mod's *.import metadata")
           missing = sorted(path for path in expected if not (project / path.removeprefix("res://")).is_file())
           if missing:
@@ -282,12 +298,24 @@ jobs:
             --exclude='.git/' --exclude='.github/' --exclude='.godot/' --exclude='.import/' \
             --exclude='project.godot' --exclude='project.godot.*' --exclude='export_presets.cfg' \
             --exclude='.DS_Store' --exclude='desktop.ini' --exclude='.gitignore' --exclude='.gitattributes' \
-            "$MOD_ROOT/" "$STAGE/mods-unpacked/$MOD_DIRECTORY/"
-          if [[ ! -d "$PROJECT/.import" ]]; then echo "::error::Godot did not generate the .import cache."; exit 1; fi
-          IMPORT_COUNT="$(find "$PROJECT/.import" -type f ! -name '.gdignore' | wc -l)"
-          if (( IMPORT_COUNT == 0 )); then echo "::error::Generated .import cache is empty."; exit 1; fi
-          mkdir -p "$STAGE/.import"
-          rsync -a --exclude='.gdignore' "$PROJECT/.import/" "$STAGE/.import/"
+            "$GITHUB_WORKSPACE/" "$STAGE/mods-unpacked/$MOD_DIRECTORY/"
+
+          if [[ "${{ steps.imports.outputs.has_import }}" == "true" ]]; then
+            if [[ ! -d "$PROJECT/.import" ]]; then
+              echo "::error::Godot did not generate the .import cache."
+              exit 1
+            fi
+            IMPORT_COUNT="$(find "$PROJECT/.import" -type f ! -name '.gdignore' | wc -l)"
+            if (( IMPORT_COUNT == 0 )); then
+              echo "::error::Generated .import cache is empty."
+              exit 1
+            fi
+            mkdir -p "$STAGE/.import"
+            rsync -a --exclude='.gdignore' "$PROJECT/.import/" "$STAGE/.import/"
+          else
+            echo "No *.import metadata; no Godot .import cache is required for this Mod."
+          fi
+
           find "$STAGE" -type f \( -name '.gdignore' -o -name '*.md5' -o -name '*.csv.import' \) -delete
           (cd "$STAGE" && zip -r -q -9 -n '.png:.webp:.jpg:.jpeg:.gif:.bmp:.ico:.dds:.stex:.ctex:.ogg:.oggstr:.mp3:.aac:.m4a:.mp4:.webm:.zip:.7z:.rar:.gz:.bz2:.xz:.zst' "$ZIP" .)
           test -s "$ZIP"
@@ -319,9 +347,14 @@ jobs:
             echo "::error::Forbidden generated files leaked into the release package."
             exit 1
           fi
-          if ! grep -Eq '^\.import/[^/]+$|^\.import/.+/.+$' "$LISTING"; then
-            echo "::error::Generated .import cache is missing from the release package."
-            exit 1
+          if [[ "${{ steps.imports.outputs.has_import }}" == "true" ]]; then
+            if ! grep -Eq '^\.import/[^/]+$|^\.import/.+/.+$' "$LISTING"; then
+              echo "::error::Generated .import cache is missing from the release package."
+              exit 1
+            fi
+            echo "Generated .import cache verified in release package."
+          else
+            echo "No *.import metadata; .import cache verification skipped."
           fi
           unzip -p "$ZIP" "$MANIFEST_PATH" > "$RUNNER_TEMP/release-manifest.json"
           VERSION="$VERSION" MANIFEST="$RUNNER_TEMP/release-manifest.json" python3 <<'PY'
@@ -338,24 +371,22 @@ jobs:
           echo "ZIP structure verified successfully."
 
       - name: Upload release assets
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-${{ steps.manifest.outputs.name }}-${{ steps.version.outputs.version }}
           path: |
             ${{ runner.temp }}/release/*.zip
             ${{ runner.temp }}/release/*.sha256
           if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
 
       - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-          ZIP_NAME: ${{ steps.manifest.outputs.zip_name }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh release create "$TAG" \
-            "$RUNNER_TEMP/release/$ZIP_NAME" \
-            "$RUNNER_TEMP/release/$ZIP_NAME.sha256" \
-            --title "$ZIP_NAME" \
-            --generate-notes
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.manifest.outputs.name }} ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            ${{ runner.temp }}/release/${{ steps.manifest.outputs.zip_name }}
+            ${{ runner.temp }}/release/${{ steps.manifest.outputs.zip_name }}.sha256
