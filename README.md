@@ -115,10 +115,10 @@ The workflow also imports Godot resources, creates the Mod Loader package, prese
 | Engine | Godot 3.x / GDScript |
 | Mod Loader | **6.3.0** |
 | Mod version | **1.1.0** |
-| Brotato game version | `0.0.1` declared in manifest |
+| Brotato game version | **1.15.4** |
 | License | MIT |
 
-The manifest is the source of truth for declared compatibility. The listed Brotato version should not be interpreted as a universal compatibility claim.
+The manifest is the source of truth for declared compatibility.
 
 ## Project structure
 
