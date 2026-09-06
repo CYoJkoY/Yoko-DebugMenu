@@ -68,13 +68,11 @@ jobs:
           path = Path("manifest.json")
           if not path.is_file():
               raise SystemExit("manifest.json is missing")
-
           data = json.loads(path.read_text(encoding="utf-8-sig"))
           for key in ("name", "namespace", "version_number", "description"):
               value = data.get(key)
               if not isinstance(value, str) or not value.strip():
                   raise SystemExit(f"Invalid manifest field: {key}")
-
           for key in ("name", "namespace"):
               value = data[key].strip()
               if "/" in value or "\\" in value or value in {".", ".."}:
@@ -94,7 +92,6 @@ jobs:
           print(f"Manifest: {namespace}/{name}")
           print(f"Manifest version: {manifest_version}")
           print(f"Release version: {release_version}")
-
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               print(f"name={name}", file=out)
               print(f"namespace={namespace}", file=out)
@@ -132,19 +129,10 @@ jobs:
           rm -rf "$PROJECT"
           mkdir -p "$MOD_ROOT"
           rsync -a \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.godot/' \
-            --exclude='.import/' \
-            --exclude='dist/' \
-            --exclude='ci/' \
-            --exclude='project.godot' \
-            --exclude='project.godot.*' \
-            --exclude='export_presets.cfg' \
-            --exclude='.DS_Store' \
-            --exclude='desktop.ini' \
-            --exclude='.gitignore' \
-            --exclude='.gitattributes' \
+            --exclude='.git/' --exclude='.github/' --exclude='.godot/' --exclude='.import/' \
+            --exclude='dist/' --exclude='ci/' --exclude='project.godot' --exclude='project.godot.*' \
+            --exclude='export_presets.cfg' --exclude='.DS_Store' --exclude='desktop.ini' \
+            --exclude='.gitignore' --exclude='.gitattributes' \
             "$GITHUB_WORKSPACE/" "$MOD_ROOT/"
           cat > "$PROJECT/project.godot" <<'GODOT'
           ; Temporary CI project used only to generate Godot 3 import data.
@@ -223,17 +211,9 @@ jobs:
           rm -rf "$STAGE" "$RELEASE"
           mkdir -p "$STAGE/mods-unpacked/$MOD_DIRECTORY" "$RELEASE"
           rsync -a \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.godot/' \
-            --exclude='.import/' \
-            --exclude='project.godot' \
-            --exclude='project.godot.*' \
-            --exclude='export_presets.cfg' \
-            --exclude='.DS_Store' \
-            --exclude='desktop.ini' \
-            --exclude='.gitignore' \
-            --exclude='.gitattributes' \
+            --exclude='.git/' --exclude='.github/' --exclude='.godot/' --exclude='.import/' \
+            --exclude='project.godot' --exclude='project.godot.*' --exclude='export_presets.cfg' \
+            --exclude='.DS_Store' --exclude='desktop.ini' --exclude='.gitignore' --exclude='.gitattributes' \
             "$MOD_ROOT/" "$STAGE/mods-unpacked/$MOD_DIRECTORY/"
           if [[ ! -d "$PROJECT/.import" ]]; then
             echo "::error::Godot did not generate the .import cache."
@@ -286,7 +266,6 @@ jobs:
           import json
           import os
           from pathlib import Path
-
           expected = os.environ["VERSION"]
           manifest = json.loads(Path(os.environ["MANIFEST"]).read_text(encoding="utf-8"))
           actual = manifest.get("version_number")
