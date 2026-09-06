@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then TAG="$INPUT_TAG"; else TAG="$GITHUB_REF_NAME"; fi
           [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Invalid tag '$TAG'. Expected vX.Y.Z."; exit 1; }
-          VERSION="${TAG#v}"; { echo "tag=$TAG"; echo "version=$VERSION"; } >> "$GITHUB_OUTPUT"
+          VERSION="${TAG#v}"; printf 'tag=%s\nversion=%s\n' "$TAG" "$VERSION" >> "$GITHUB_OUTPUT"
       - name: Validate manifest
         id: manifest
         shell: bash
@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json,os
+          import json, os
           from pathlib import Path
           p=Path('manifest.json')
           if not p.is_file(): raise SystemExit('manifest.json is missing')
@@ -75,6 +75,9 @@ jobs:
           [application]
           config/name="Mod Release Import"
           run/main_scene=""
+          [display]
+          window/size/width=1280
+          window/size/height=720
           GODOT
           echo "PROJECT=$PROJECT" >> "$GITHUB_ENV"; echo "MOD_ROOT=$MOD_ROOT" >> "$GITHUB_ENV"
       - name: Detect import metadata
@@ -82,8 +85,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          COUNT="$(find "$MOD_ROOT" -type f -name '*.import' | wc -l)"
-          echo "Import metadata files detected: $COUNT"
+          COUNT="$(find "$MOD_ROOT" -type f -name '*.import' | wc -l)"; echo "Import metadata files detected: $COUNT"
           if (( COUNT > 0 )); then echo 'has_import=true' >> "$GITHUB_OUTPUT"; else echo 'has_import=false' >> "$GITHUB_OUTPUT"; echo 'No *.import metadata found; Godot import generation will be skipped.'; fi
       - name: Install Godot ${{ env.GODOT_VERSION }}
         if: steps.imports.outputs.has_import == 'true'
@@ -117,18 +119,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          LOG="$RUNNER_TEMP/godot-import.log"; DIR="$PROJECT/.import"; rm -rf "$DIR"
+          LOG="$RUNNER_TEMP/godot-import.log"; DIR="$PROJECT/.import"; rm -rf "$DIR"; mkdir -p "$DIR"
           "$GODOT_BIN" --path "$PROJECT" --editor --headless --audio-driver Dummy >"$LOG" 2>&1 & PID=$!
           cleanup(){ kill "$PID" 2>/dev/null || true; wait "$PID" 2>/dev/null || true; }; trap cleanup EXIT
-          END="$(($(date +%s)+300))"; LAST=-1; STABLE=0
+          END="$(($(date +%s)+300))"; LAST=-1; STABLE=0; FINISHED=0
           while (( $(date +%s) < END )); do
-            COUNT="$(find "$DIR" -type f ! -name '.gdignore' 2>/dev/null | wc -l)"
+            COUNT="$(find "$DIR" -type f ! -name '.gdignore' | wc -l)"
             if (( COUNT == LAST )); then STABLE=$((STABLE+1)); else LAST="$COUNT"; STABLE=0; fi
             echo "Imported cache files: $COUNT; stable checks: $STABLE"
-            if (( COUNT > 0 && STABLE >= 8 )); then break; fi
+            if (( COUNT > 0 && STABLE >= 8 )); then FINISHED=1; break; fi
+            if ! kill -0 "$PID" 2>/dev/null; then echo 'Godot process exited; validating the generated cache.'; break; fi
             sleep 1
           done
-          if ! (( LAST > 0 && STABLE >= 8 )); then echo '::error::Godot import did not reach a stable state within 300 seconds.'; cat "$LOG" >&2 || true; exit 1; fi
+          if (( FINISHED == 0 && $(date +%s) >= END )); then echo '::error::Godot resource import did not reach a stable state within 300 seconds.'; cat "$LOG" >&2 || true; exit 1; fi
+          wait "$PID" 2>/dev/null || true
           python3 - <<'PY'
           import os,re
           from pathlib import Path
