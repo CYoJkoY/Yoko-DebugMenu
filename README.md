@@ -2,37 +2,77 @@
 
 # Yoko-DebugMenu
 
-**An in-game debugging toolkit for Brotato mod development and testing.**
+**An in-game debugging toolkit for Brotato mod development, testing, and rapid iteration.**
 
-[![Latest Release](https://img.shields.io/github/v/release/CYoJkoY/Yoko-DebugMenu?display_name=tag&sort=semver&style=flat-square)](https://github.com/CYoJkoY/Yoko-DebugMenu/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/CYoJkoY/Yoko-DebugMenu/release.yml?style=flat-square&label=build)](https://github.com/CYoJkoY/Yoko-DebugMenu/actions/workflows/release.yml)
-[![Mod Loader](https://img.shields.io/badge/Mod%20Loader-6.3.0-5965FF?style=flat-square)](#compatibility)
-[![Godot](https://img.shields.io/badge/Godot-3.x-478CBF?style=flat-square&logo=godot-engine&logoColor=white)](https://godotengine.org/)
-[![License](https://img.shields.io/github/license/CYoJkoY/Yoko-DebugMenu?style=flat-square)](LICENSE)
+<p>
+  <a href="https://github.com/CYoJkoY/Yoko-DebugMenu/releases"><img src="https://img.shields.io/github/v/release/CYoJkoY/Yoko-DebugMenu?display_name=tag&sort=semver&style=flat-square&label=release" alt="Latest release"></a>
+  <a href="https://github.com/CYoJkoY/Yoko-DebugMenu/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/CYoJkoY/Yoko-DebugMenu/release.yml?style=flat-square&label=build" alt="Build status"></a>
+  <img src="https://img.shields.io/badge/Brotato-1.15.4-478CBF?style=flat-square" alt="Brotato 1.15.4">
+  <img src="https://img.shields.io/badge/Mod%20Loader-6.3.0-5965FF?style=flat-square" alt="Mod Loader 6.3.0">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/CYoJkoY/Yoko-DebugMenu?style=flat-square" alt="MIT License"></a>
+</p>
 
-[Features](#features) · [Installation](#installation) · [Usage](#usage) · [Architecture](#architecture) · [Development](#development)
+<p><a href="#what-it-is">Overview</a> · <a href="#tools">Tools</a> · <a href="#usage">Usage</a> · <a href="#architecture">Architecture</a> · <a href="#installation">Installation</a></p>
 
 </div>
 
----
-
 ## What it is
 
-Yoko-DebugMenu adds a dedicated in-game debug interface to Brotato without requiring changes to the base game files. It is designed for rapid iteration: manipulate player state, equipment, enemies, waves, and progression from one panel while testing mods.
+Yoko-DebugMenu adds a dedicated debug interface to Brotato without modifying the base game files. It is built for the moment when normal gameplay becomes a bottleneck: change player state, equipment, enemies, waves, or progression from one panel and continue testing immediately.
 
-The repository is a **Brotato Mod Loader** project written in GDScript. The mod extends the game's existing debug service instead of creating a separate gameplay loop.
+The mod extends Brotato's existing debug service rather than creating a parallel gameplay loop.
 
-## Features
+## Tools
 
-| Area | Tools |
+| Area | Capabilities |
 | :--- | :--- |
-| **Player** | Give/remove items, weapons, and upgrades; add materials; randomize equipment; toggle invulnerability and invisibility; remove starting weapons |
-| **Combat** | Enable one-shot enemies and slow motion for targeted testing |
-| **Progression** | Unlock or relock progression entries for repeatable test runs |
-| **Enemies & Waves** | Browse registered enemy entities and test vanilla or compatible modded encounters |
-| **Input** | Open the menu with `T` or the configured player-1 left/right trigger combination |
+| Player | Give/remove items, weapons, and upgrades; add materials; randomize equipment; toggle invulnerability and invisibility; remove starting weapons |
+| Combat | One-shot enemies and slow motion for targeted testing |
+| Progression | Unlock or relock progression entries for repeatable test runs |
+| Enemies & waves | Browse registered enemy entities and test vanilla or compatible modded encounters |
+| Input | Open with `T` or the configured player-1 trigger combination |
 
-Text-entry fields are respected, so the keyboard shortcut does not interfere with `LineEdit` or `TextEdit` input.
+Text-entry controls are respected, so the keyboard shortcut does not interfere with `LineEdit` or `TextEdit` input.
+
+## Usage
+
+1. Launch Brotato with Mod Loader enabled.
+2. Enter a scene where the debug service is available.
+3. Press `T`, or use the supported player-1 trigger combination.
+4. Use the debug tabs to manipulate the state you need to test.
+5. Close the panel when the test is complete.
+
+The menu is intended to shorten the feedback loop between a code/content change and an observable in-game result.
+
+## Architecture
+
+The integration is deliberately narrow:
+
+```text
+Brotato debug service
+        │
+        ▼
+extensions/debug_service.gd
+        │
+        ▼
+   Yoko-DebugMenu
+        │
+        ├── Player tools
+        ├── Enemy tools
+        └── Wave / progression tools
+```
+
+`mod_main.gd` installs the extension for `res://singletons/debug_service.gd`. The debug UI remains ordinary Godot content under `content/`, while `extensions/` handles the integration boundary.
+
+```text
+content/
+└── scenes/
+    ├── debug_menu.gd
+    └── debug_menu.tscn
+
+extensions/
+└── debug_service.gd
+```
 
 ## Installation
 
@@ -40,7 +80,7 @@ Download the latest `DebugMenu-*.zip` from [Releases](https://github.com/CYoJkoY
 
 Keep the release ZIP compressed for normal installation.
 
-For source development, the expected mod layout is:
+Development layout:
 
 ```text
 mods-unpacked/
@@ -53,51 +93,26 @@ mods-unpacked/
 
 See the [Godot Mod Loader documentation](https://wiki.godotmodding.com/) for current installation conventions.
 
-## Usage
+## Compatibility
 
-1. Launch Brotato with Mod Loader enabled.
-2. Enter a scene where the debug service is available.
-3. Press `T`, or use the supported trigger combination on player 1.
-4. Switch between the available debug tabs.
-5. Close the panel when testing is complete.
+| Component | Declared target |
+| :--- | :--- |
+| Game | **Brotato 1.15.4** |
+| Engine | Godot 3.x / GDScript |
+| Mod Loader | **6.3.0** |
+| Mod version | **1.1.0** |
+| Dependencies | None |
+| License | MIT |
 
-## Architecture
-
-The implementation is deliberately narrow:
-
-```text
-Brotato debug service
-        │
-        ▼
-extensions/debug_service.gd
-        │
-        ▼
-Yoko-DebugMenu
-        │
-        ├── Player tools
-        ├── Enemy tools
-        └── Wave / progression tools
-```
-
-`mod_main.gd` installs the extension for `res://singletons/debug_service.gd`. The custom debug interface lives under `content/`, so the UI can be edited as ordinary Godot content while the extension layer handles integration with Brotato.
-
-```text
-content/
-└── scenes/
-    ├── debug_menu.gd
-    └── debug_menu.tscn
-
-extensions/
-└── debug_service.gd
-```
+`manifest.json` is the source of truth for declared compatibility.
 
 ## Development
 
-The project uses the Godot 3.x Mod Loader extension model.
+Keep UI behavior in `content/` and game-system integration in `extensions/`. New debug actions should target the narrowest game service that owns the relevant state so the testing layer remains isolated.
 
-When changing the debug panel, keep UI concerns in `content/` and game-system integration in `extensions/`. New debug actions should target the narrowest appropriate game service so they remain isolated and easier to test.
+### Release pipeline
 
-Releases are built from semantic version tags. The release workflow requires the tag and `manifest.json` to agree exactly:
+Releases are built from semantic version tags and require the tag to match `manifest.json` exactly:
 
 ```text
 manifest.json: 1.1.0
@@ -106,19 +121,7 @@ manifest.json: 1.1.0
         └── tag v1.2.0  → build rejected
 ```
 
-The workflow also imports Godot resources, creates the Mod Loader package, preserves generated `.import` data, verifies ZIP contents, and checks the packaged manifest before publishing the release.
-
-## Compatibility
-
-| Component | Declared target |
-| :--- | :--- |
-| Engine | Godot 3.x / GDScript |
-| Mod Loader | **6.3.0** |
-| Mod version | **1.1.0** |
-| Brotato game version | **1.15.4** |
-| License | MIT |
-
-The manifest is the source of truth for declared compatibility.
+The workflow imports Godot resources, creates the Mod Loader package, preserves generated `.import` data, validates ZIP contents, and checks the packaged manifest before publishing.
 
 ## Project structure
 
@@ -128,27 +131,28 @@ Yoko-DebugMenu/
 ├── content/
 │   └── scenes/
 ├── extensions/
+│   └── debug_service.gd
 ├── manifest.json
 ├── mod_main.gd
 ├── README.md
 └── LICENSE
 ```
 
+## Contributing
+
+Useful contributions add test controls that shorten the feedback loop, fix concrete debugging defects, improve compatibility, or keep the UI and integration boundary clear.
+
+For bug reports, include Brotato, Mod Loader, and Yoko-DebugMenu versions, the debug action involved, reproduction steps, and relevant logs.
+
+## Support
+
+If this toolkit saves you time while developing or testing Brotato mods, development support is available through the deployed payment page:
+
+**https://cyojkoy.github.io/Payment/**
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
-## Support the Author
-
-If this project saves you time while developing or testing Brotato mods, consider supporting its continued development.
-
-<div align="center">
-  <a href="https://cyojkoy.github.io/Payment/">
-    <img src="https://img.shields.io/badge/Support_the_Author-9E8F7E?style=for-the-badge&logo=buy-me-a-coffee&logoColor=BEB8AE" alt="Support the Author">
-  </a>
-</div>
-
----
 
 <div align="center">
   <sub>Yoko-DebugMenu · Brotato debugging tools by CYoJkoY</sub>
