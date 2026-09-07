@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="assets/hero.svg" alt="Yoko-DebugMenu — in-game debugging toolkit for Brotato mod development" width="1200" style="max-width: 100%; height: auto;">
-
   <h1>Yoko-DebugMenu</h1>
   <p><strong>An in-game debugging toolkit for Brotato development, testing, and rapid iteration.</strong></p>
   <p>Player state · Equipment · Enemies · Waves · Progression · Input</p>
