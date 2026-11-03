@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=2]
+[gd_scene load_steps=48 format=2]
 
 [ext_resource path="res://resources/themes/base_theme.tres" type="Theme" id=1]
 [ext_resource path="res://resources/fonts/actual/base/font_smallest_text.tres" type="DynamicFont" id=2]
@@ -39,6 +39,8 @@
 [ext_resource path="res://items/all/00_base_game/charcoal/charcoal_icon.png" type="Texture" id=37]
 [ext_resource path="res://ui/menus/run/difficulty_selection/difficulty_icons/4.png" type="Texture" id=38]
 [ext_resource path="res://items/stats/attack_speed.png" type="Texture" id=39]
+[ext_resource path="res://ui/menus/global/popup_manager.tscn" type="PackedScene" id=40]
+[ext_resource path="res://ui/menus/shop/item_popup.tscn" type="PackedScene" id=41]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.215686, 0.215686, 0.215686, 1 )
@@ -77,6 +79,38 @@ corner_radius_bottom_left = 20
 
 [sub_resource type="ButtonGroup" id=4]
 
+[sub_resource type="Animation" id=5]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "idle"
+length = 1.2
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.6, 1.2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 0.902, 1.258 ), Vector2( 1, 1 ) ]
+}
+
 [node name="debug_menu" type="PanelContainer"]
 pause_mode = 2
 modulate = Color( 1, 1, 1, 0.823529 )
@@ -86,7 +120,7 @@ margin_right = -1395.0
 theme = ExtResource( 1 )
 custom_styles/panel = SubResource( 1 )
 script = ExtResource( 19 )
-enemies_directories = [ "res://entities/units/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies", "res://mods-unpacked/Yoko-YzTato/content/entities/enemies" ]
+enemies_directories = [ "res://entities/units/enemies", "res://mods-unpacked/Yoko-Fantasy/content/entities/enemies", "res://mods-unpacked/Yoko-YzTato/content/entities/enemies", "res://mods-unpacked/Dbear-Capybara/contents/zones/saint_world_zone/enemies/" ]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 margin_left = 5.0
@@ -145,7 +179,7 @@ size_flags_vertical = 3
 
 [node name="Players_cont" type="VBoxContainer" parent="VBoxContainer/TabContainer/Players_cont"]
 margin_right = 495.0
-margin_bottom = 1025.0
+margin_bottom = 1093.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -184,10 +218,22 @@ icon = ExtResource( 35 )
 align = 0
 expand_icon = true
 
-[node name="gold_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
+[node name="givemestats_but" type="Button" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
+modulate = Color( 0.278431, 1, 0.427451, 1 )
 margin_top = 204.0
 margin_right = 495.0
-margin_bottom = 258.0
+margin_bottom = 268.0
+rect_min_size = Vector2( 0, 64 )
+custom_fonts/font = ExtResource( 2 )
+text = " Give/Remove stats"
+icon = ExtResource( 39 )
+align = 0
+expand_icon = true
+
+[node name="gold_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
+margin_top = 272.0
+margin_right = 495.0
+margin_bottom = 326.0
 
 [node name="gold_spinbox" type="SpinBox" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/gold_cont"]
 unique_name_in_owner = true
@@ -210,9 +256,9 @@ expand = true
 stretch_mode = 6
 
 [node name="randomize_equipment" type="Button" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 262.0
+margin_top = 330.0
 margin_right = 495.0
-margin_bottom = 326.0
+margin_bottom = 394.0
 rect_min_size = Vector2( 0, 64 )
 custom_fonts/font = ExtResource( 2 )
 text = " Randomize Equipment"
@@ -222,9 +268,9 @@ expand_icon = true
 
 [node name="invulnerable_but" type="CheckButton" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
 unique_name_in_owner = true
-margin_top = 330.0
+margin_top = 398.0
 margin_right = 495.0
-margin_bottom = 400.0
+margin_bottom = 468.0
 size_flags_vertical = 0
 custom_fonts/font = ExtResource( 2 )
 text = "Invulnerable"
@@ -233,9 +279,9 @@ expand_icon = true
 
 [node name="invisible_but" type="CheckButton" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
 unique_name_in_owner = true
-margin_top = 404.0
+margin_top = 472.0
 margin_right = 495.0
-margin_bottom = 474.0
+margin_bottom = 542.0
 size_flags_vertical = 0
 custom_fonts/font = ExtResource( 2 )
 text = "Invisible"
@@ -244,9 +290,9 @@ expand_icon = true
 
 [node name="oneshotenemies_but" type="CheckButton" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
 unique_name_in_owner = true
-margin_top = 478.0
+margin_top = 546.0
 margin_right = 495.0
-margin_bottom = 548.0
+margin_bottom = 616.0
 size_flags_vertical = 0
 custom_fonts/font = ExtResource( 2 )
 text = "OneShot Enemies"
@@ -255,9 +301,9 @@ expand_icon = true
 
 [node name="slowmotion_but" type="CheckButton" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
 unique_name_in_owner = true
-margin_top = 552.0
+margin_top = 620.0
 margin_right = 495.0
-margin_bottom = 622.0
+margin_bottom = 690.0
 size_flags_vertical = 0
 custom_fonts/font = ExtResource( 2 )
 text = "Slow Motion"
@@ -266,9 +312,9 @@ expand_icon = true
 
 [node name="removestartingweapons_but" type="CheckButton" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
 unique_name_in_owner = true
-margin_top = 626.0
+margin_top = 694.0
 margin_right = 495.0
-margin_bottom = 696.0
+margin_bottom = 764.0
 size_flags_vertical = 0
 custom_fonts/font = ExtResource( 2 )
 text = "Remove Starting Weapons"
@@ -276,23 +322,23 @@ icon = ExtResource( 15 )
 expand_icon = true
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 700.0
+margin_top = 768.0
 margin_right = 495.0
-margin_bottom = 713.0
+margin_bottom = 781.0
 custom_constants/separation = 13
 
 [node name="Progression_label" type="Label" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 717.0
+margin_top = 785.0
 margin_right = 495.0
-margin_bottom = 742.0
+margin_bottom = 810.0
 custom_fonts/font = ExtResource( 2 )
 text = "PROGRESSION :"
 align = 1
 
 [node name="All" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 746.0
+margin_top = 814.0
 margin_right = 495.0
-margin_bottom = 791.0
+margin_bottom = 859.0
 rect_min_size = Vector2( 0, 45 )
 
 [node name="unlockAll_but" type="Button" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/All"]
@@ -320,9 +366,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Characters_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 795.0
+margin_top = 863.0
 margin_right = 495.0
-margin_bottom = 830.0
+margin_bottom = 898.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Characters_cont"]
 margin_right = 35.0
@@ -366,9 +412,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Difficulties_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 834.0
+margin_top = 902.0
 margin_right = 495.0
-margin_bottom = 869.0
+margin_bottom = 937.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Difficulties_cont"]
 margin_right = 35.0
@@ -412,9 +458,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Challenges_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 873.0
+margin_top = 941.0
 margin_right = 495.0
-margin_bottom = 908.0
+margin_bottom = 976.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Challenges_cont"]
 margin_right = 35.0
@@ -458,9 +504,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Items_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 912.0
+margin_top = 980.0
 margin_right = 495.0
-margin_bottom = 947.0
+margin_bottom = 1015.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Items_cont"]
 margin_right = 35.0
@@ -504,9 +550,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Weapons_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 951.0
+margin_top = 1019.0
 margin_right = 495.0
-margin_bottom = 986.0
+margin_bottom = 1054.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Weapons_cont"]
 margin_right = 35.0
@@ -550,9 +596,9 @@ icon = ExtResource( 28 )
 expand_icon = true
 
 [node name="Enemies_cont" type="HBoxContainer" parent="VBoxContainer/TabContainer/Players_cont/Players_cont"]
-margin_top = 990.0
+margin_top = 1058.0
 margin_right = 495.0
-margin_bottom = 1025.0
+margin_bottom = 1093.0
 
 [node name="TextureRect" type="TextureRect" parent="VBoxContainer/TabContainer/Players_cont/Players_cont/Enemies_cont"]
 margin_right = 35.0
@@ -1203,9 +1249,58 @@ icon = ExtResource( 23 )
 icon_align = 1
 expand_icon = true
 
+[node name="Stats_cont" type="VBoxContainer" parent="container_others/inventory_container"]
+unique_name_in_owner = true
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+
+[node name="Label" type="Label" parent="container_others/inventory_container/Stats_cont"]
+custom_fonts/font = ExtResource( 25 )
+text = "Stats"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="container_others/inventory_container/Stats_cont"]
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+
+[node name="stats_list" type="VBoxContainer" parent="container_others/inventory_container/Stats_cont/ScrollContainer"]
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="PopupManager" parent="container_others" instance=ExtResource( 40 )]
+unique_name_in_owner = true
+
+[node name="ItemPopup" parent="container_others" instance=ExtResource( 41 )]
+unique_name_in_owner = true
+visible = false
+
+[node name="ItemDescription" parent="container_others/ItemPopup/ItemPanelUI/MarginContainer/VBoxContainer" index="0"]
+allow_scroll_when_crowded = false
+
+[node name="CombineButton" parent="container_others/ItemPopup/ItemPanelUI/MarginContainer/VBoxContainer" index="2"]
+focus_mode = 2
+
+[node name="UpgradeButton" parent="container_others/ItemPopup/ItemPanelUI/MarginContainer/VBoxContainer" index="3"]
+focus_mode = 2
+
+[node name="DiscardButton" parent="container_others/ItemPopup/ItemPanelUI/MarginContainer/VBoxContainer" index="4"]
+focus_mode = 2
+
+[node name="CancelButton" parent="container_others/ItemPopup/ItemPanelUI/MarginContainer/VBoxContainer" index="6"]
+focus_mode = 2
+
+[node name="AnimationPlayer" parent="container_others/ItemPopup/ItemPanelUI/random_icon_container/random_icon" index="0"]
+anims/RESET = SubResource( 5 )
+anims/idle = SubResource( 6 )
+
 [connection signal="pressed" from="VBoxContainer/TabContainer/Players_cont/Players_cont/givemeitems_but" to="." method="_on_giveitems_but_pressed"]
 [connection signal="pressed" from="VBoxContainer/TabContainer/Players_cont/Players_cont/givemeweapons_but" to="." method="_on_giveweapons_but_pressed"]
 [connection signal="pressed" from="VBoxContainer/TabContainer/Players_cont/Players_cont/givemeupgrades_but" to="." method="_on_givemeupgrades_but_pressed"]
+[connection signal="pressed" from="VBoxContainer/TabContainer/Players_cont/Players_cont/givemestats_but" to="." method="_on_givemestats_but_pressed"]
 [connection signal="pressed" from="VBoxContainer/TabContainer/Players_cont/Players_cont/randomize_equipment" to="." method="_on_randomize_equipment_pressed"]
 [connection signal="pressed" from="VBoxContainer/TabContainer/Waves_cont/Waves_cont/GoToWave/GotoWave_but" to="." method="_on_goToWaveBut_pressed"]
 [connection signal="pressed" from="container_others/hide_button" to="." method="_on_hide_button_pressed"]
@@ -1225,3 +1320,5 @@ expand_icon = true
 [editable path="container_others/inventory_container/Inventory_weapons"]
 [editable path="container_others/inventory_container/Inventory_enemies"]
 [editable path="container_others/inventory_container/Inventory_upgrades"]
+[editable path="container_others/ItemPopup"]
+[editable path="container_others/ItemPopup/ItemPanelUI"]

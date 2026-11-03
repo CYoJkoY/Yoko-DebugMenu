@@ -12,7 +12,10 @@ func _on_cross_button_pressed() -> void:
 
 func _ready() -> void:
     focus_before_created = get_focus_owner()
-    cross_button.grab_focus()
+    ._ready()
+
+    if is_instance_valid(cross_button):
+        cross_button.grab_focus()
 
     var enemies: Array = []
     for entity in ItemService.entities:
