@@ -1,7 +1,5 @@
 extends "res://singletons/debug_service.gd"
 
-const DEBUG_MENU_SCENE: PackedScene = preload("res://mods-unpacked/Yoko-DebugMenu/content/scenes/debug_menu.tscn")
-
 var has_debug_menu: bool = false
 var mod_debug_menu: PanelContainer = null
 var _shortcut_was_pressed: bool = false
@@ -68,7 +66,7 @@ func _toggle_mod_debug_menu() -> void:
     if current_scene == null:
         return
 
-    var menu: PanelContainer = DEBUG_MENU_SCENE.instance()
+    var menu: PanelContainer = load("res://mods-unpacked/Yoko-DebugMenu/content/scenes/debug_menu.tscn").instance()
     var parent: Node = current_scene
     if current_scene is Main:
         parent = current_scene.get_node_or_null("UI")
